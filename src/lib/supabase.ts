@@ -4,11 +4,11 @@ const rawSupabaseUrl =
   import.meta.env.VITE_SUPABASE_URL ??
   "https://lhvnnglwfvxqtcqqxhaz.supabase.co/rest/v1/";
 
-const supabasePublishableKey =
+export const supabasePublishableKey =
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
   "sb_publishable__eLhBhgFC2O3buoIcPQbuQ_eGSojPgH";
 
-const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, "");
+export const supabaseUrl = rawSupabaseUrl.replace(/\/rest\/v1\/?$/, "");
 
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {
