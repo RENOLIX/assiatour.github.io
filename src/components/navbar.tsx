@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { Menu, X, Plane, Phone } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 
 export default function Navbar() {
@@ -37,13 +37,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
         <Link to="/" className="flex cursor-pointer items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-sky-400 shadow-lg shadow-blue-500/30">
-            <Plane className="h-4 w-4 text-white" strokeWidth={2.5} />
-          </div>
-          <div className="leading-none">
-            <span className="text-lg font-bold tracking-tight text-blue-900">ASSIA</span>
-            <span className="text-lg font-bold tracking-tight text-sky-500"> TOURS</span>
-          </div>
+          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-12 w-auto object-contain md:h-14" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
