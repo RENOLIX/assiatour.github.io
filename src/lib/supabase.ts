@@ -80,3 +80,11 @@ export type Reservation = {
   status: ReservationStatus;
   created_at: string;
 };
+
+export type GalleryBlockPhoto = {
+  id: string;
+  line: "line1" | "line2";
+  position: number;
+  image_url: string;
+  created_at: string;
+};

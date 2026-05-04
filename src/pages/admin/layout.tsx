@@ -4,6 +4,7 @@ import {
   Plane,
   Users,
   CalendarCheck,
+  Images,
   LayoutDashboard,
   LogOut,
   ChevronRight,
@@ -16,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth.ts";
 const navItems = [
   { icon: LayoutDashboard, label: "Tableau de bord", to: "/admin", adminOnly: true },
   { icon: Plane, label: "Voyages", to: "/admin/voyages", adminOnly: true },
+  { icon: Images, label: "Bloc galerie", to: "/admin/bloc-gallerie", adminOnly: true },
   { icon: Users, label: "Utilisateurs", to: "/admin/utilisateurs", adminOnly: true },
   { icon: CalendarCheck, label: "Réservations", to: "/admin/reservations", adminOnly: false },
 ];

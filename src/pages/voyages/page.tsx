@@ -15,11 +15,10 @@ export default function VoyagesPage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=90&w=1920)",
+            backgroundImage: "url(/assiatour.github.io/voyages-pool-hero.webp)",
           }}
         />
-        <div className="relative mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-3xl text-center [text-shadow:0_2px_18px_rgba(255,255,255,0.95),0_1px_3px_rgba(255,255,255,0.85)]">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <Badge className="mb-4 border-white/25 bg-white/15 text-white">Saison 2026</Badge>
             <h1 className="mb-4 text-4xl font-bold md:text-5xl">Nos Voyages Organisés</h1>
