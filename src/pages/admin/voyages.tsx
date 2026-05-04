@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
+import { useAuth } from "@/hooks/use-auth.ts";
 
 type DepartureForm = { id: string; from: string; to: string };
 type HotelPriceKey = "double" | "triple" | "single" | "infant" | "child1" | "child2";
@@ -144,6 +145,7 @@ async function uploadFiles(files: FileList | null, folder: string) {
 }
 
 export default function AdminVoyages() {
+  const { profile } = useAuth();
   const [trips, setTrips] = useState<AdminTrip[] | null>(null);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<AdminTrip | null>(null);
@@ -161,8 +163,19 @@ export default function AdminVoyages() {
       .then(({ data }) => setTrips((data as AdminTrip[]) ?? []));
 
   useEffect(() => {
-    load();
-  }, []);
+    if (profile?.role === "admin") load();
+  }, [profile?.role]);
+
+  if (profile?.role !== "admin") {
+    return (
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-blue-950">Accès réservé</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Seul un administrateur peut gérer les voyages.
+        </p>
+      </div>
+    );
+  }
 
   const openCreate = () => {
     setEditing(null);

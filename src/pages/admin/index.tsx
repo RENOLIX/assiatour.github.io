@@ -2,17 +2,32 @@ import { useEffect, useState } from "react";
 import { Plane, Users, CalendarCheck, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase, type AdminTrip, type Profile, type Reservation } from "@/lib/supabase.ts";
+import { useAuth } from "@/hooks/use-auth.ts";
 
 export default function AdminDashboard() {
+  const { profile } = useAuth();
   const [reservations, setReservations] = useState<Reservation[] | null>(null);
   const [users, setUsers] = useState<Profile[] | null>(null);
   const [trips, setTrips] = useState<AdminTrip[] | null>(null);
 
   useEffect(() => {
+    if (profile?.role !== "admin") return;
     supabase.from("reservations").select("*").order("created_at", { ascending: false }).then(({ data }) => setReservations((data as Reservation[]) ?? []));
     supabase.from("profiles").select("*").order("created_at", { ascending: false }).then(({ data }) => setUsers((data as Profile[]) ?? []));
     supabase.from("trips").select("*").order("created_at", { ascending: false }).then(({ data }) => setTrips((data as AdminTrip[]) ?? []));
-  }, []);
+  }, [profile?.role]);
+
+  if (profile?.role === "employee") {
+    return (
+      <div className="p-8">
+        <h1 className="text-2xl font-bold text-blue-950">Espace employé</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Vous pouvez consulter les réservations et modifier leur statut.</p>
+        <Link to="/admin/reservations" className="mt-6 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+          Voir les réservations
+        </Link>
+      </div>
+    );
+  }
 
   const pending = reservations?.filter((r) => r.status === "pending").length ?? 0;
   const confirmed = reservations?.filter((r) => r.status === "confirmed").length ?? 0;

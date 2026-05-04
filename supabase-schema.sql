@@ -6,7 +6,7 @@
 create extension if not exists pgcrypto;
 
 do $$ begin
-  create type public.app_role as enum ('admin', 'employee', 'client');
+  create type public.app_role as enum ('admin', 'employee');
 exception when duplicate_object then null; end $$;
 
 do $$ begin
@@ -17,7 +17,7 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text,
   name text,
-  role public.app_role not null default 'client',
+  role public.app_role not null default 'employee',
   created_at timestamptz not null default now()
 );
 
@@ -96,6 +96,47 @@ create trigger trips_touch_updated_at
 before update on public.trips
 for each row execute function public.touch_updated_at();
 
+create or replace function public.employee_can_update_reservation_status_only()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if public.current_user_role() = 'employee' then
+    if new.id is distinct from old.id
+      or new.trip_slug is distinct from old.trip_slug
+      or new.trip_name is distinct from old.trip_name
+      or new.departure_from is distinct from old.departure_from
+      or new.departure_to is distinct from old.departure_to
+      or new.hotel_name is distinct from old.hotel_name
+      or new.room_type is distinct from old.room_type
+      or new.passenger_count is distinct from old.passenger_count
+      or new.first_name is distinct from old.first_name
+      or new.last_name is distinct from old.last_name
+      or new.email is distinct from old.email
+      or new.phone is distinct from old.phone
+      or new.address is distinct from old.address
+      or new.city is distinct from old.city
+      or new.passport_number is distinct from old.passport_number
+      or new.passport_expiry is distinct from old.passport_expiry
+      or new.nationality is distinct from old.nationality
+      or new.birth_date is distinct from old.birth_date
+      or new.notes is distinct from old.notes
+      or new.created_at is distinct from old.created_at
+    then
+      raise exception 'Les employes peuvent modifier uniquement le statut.';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists reservations_employee_status_only on public.reservations;
+create trigger reservations_employee_status_only
+before update on public.reservations
+for each row execute function public.employee_can_update_reservation_status_only();
+
 create or replace function public.current_user_role()
 returns public.app_role
 language sql
@@ -118,7 +159,10 @@ begin
     new.id,
     new.email,
     coalesce(new.raw_user_meta_data->>'name', new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-    coalesce((new.raw_user_meta_data->>'role')::public.app_role, 'client')
+    case
+      when new.raw_user_meta_data->>'role' = 'admin' then 'admin'::public.app_role
+      else 'employee'::public.app_role
+    end
   )
   on conflict (id) do update set
     email = excluded.email,
@@ -140,7 +184,7 @@ drop policy if exists "profiles_select_self_or_admin" on public.profiles;
 create policy "profiles_select_self_or_admin"
 on public.profiles for select
 to authenticated
-using (id = auth.uid() or public.current_user_role() in ('admin', 'employee'));
+using (id = auth.uid() or public.current_user_role() = 'admin');
 
 drop policy if exists "profiles_admin_update" on public.profiles;
 create policy "profiles_admin_update"
@@ -159,7 +203,7 @@ drop policy if exists "trips_public_read_active" on public.trips;
 create policy "trips_public_read_active"
 on public.trips for select
 to anon, authenticated
-using (active = true or public.current_user_role() in ('admin', 'employee'));
+using (active = true or public.current_user_role() = 'admin');
 
 drop policy if exists "trips_admin_write" on public.trips;
 create policy "trips_admin_write"
@@ -203,14 +247,14 @@ drop policy if exists "trip_images_staff_upload" on storage.objects;
 create policy "trip_images_staff_upload"
 on storage.objects for insert
 to authenticated
-with check (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'));
+with check (bucket_id = 'trip-images' and public.current_user_role() = 'admin');
 
 drop policy if exists "trip_images_staff_update" on storage.objects;
 create policy "trip_images_staff_update"
 on storage.objects for update
 to authenticated
-using (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'))
-with check (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'));
+using (bucket_id = 'trip-images' and public.current_user_role() = 'admin')
+with check (bucket_id = 'trip-images' and public.current_user_role() = 'admin');
 
 insert into public.trips
   (slug, destination, country, flag, tagline, description, hero_image, airline, duration, base_price, includes, excludes, excursions, optional_activities)

@@ -18,7 +18,7 @@ export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   },
 });
 
-export type AppRole = "admin" | "employee" | "client";
+export type AppRole = "admin" | "employee";
 export type ReservationStatus = "pending" | "confirmed" | "cancelled";
 
 export type Profile = {
