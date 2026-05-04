@@ -102,7 +102,51 @@ export default function ReservationPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <section className="overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-sky-700 px-4 pb-16 pt-36 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-sky-700 px-4 pb-16 pt-36 text-white">
+        <div className="pointer-events-none absolute inset-0 opacity-75">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.11)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.11)_1px,transparent_1px)] bg-[size:44px_44px]" />
+          <motion.div
+            className="absolute left-4 top-24 hidden w-44 rounded-2xl border border-white/20 bg-white/10 p-3 shadow-2xl shadow-blue-950/20 sm:block"
+            animate={{ y: [0, 18, 0], rotate: [0, -2, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="mb-3 h-2 w-20 rounded bg-white/40" />
+            <div className="space-y-2">
+              <div className="h-2 rounded bg-white/25" />
+              <div className="h-2 w-28 rounded bg-white/20" />
+              <div className="h-7 rounded-xl border border-white/20 bg-white/10" />
+            </div>
+          </motion.div>
+          <motion.div
+            className="absolute right-4 top-24 hidden w-48 rounded-2xl border border-white/20 bg-white/10 p-3 shadow-2xl shadow-blue-950/20 md:block"
+            animate={{ y: [0, -16, 0], rotate: [0, 2, 0] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="mb-3 flex gap-2">
+              <div className="h-8 w-8 rounded-lg bg-white/20" />
+              <div className="flex-1 space-y-2">
+                <div className="h-2 rounded bg-white/35" />
+                <div className="h-2 w-20 rounded bg-white/20" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="h-8 rounded-lg bg-white/15" />
+              <div className="h-8 rounded-lg bg-white/20" />
+              <div className="h-8 rounded-lg bg-white/15" />
+            </div>
+          </motion.div>
+          <motion.div
+            className="absolute bottom-6 left-1/2 w-56 -translate-x-1/2 rounded-2xl border border-white/20 bg-white/10 p-3 shadow-2xl shadow-blue-950/20"
+            animate={{ y: [0, 12, 0], opacity: [0.55, 0.9, 0.55] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="h-2 w-24 rounded bg-white/35" />
+              <div className="h-7 w-16 rounded-lg bg-sky-300/30" />
+            </div>
+          </motion.div>
+          <div className="absolute inset-x-0 bottom-0 h-px bg-white/20" />
+        </div>
         <div className="relative mx-auto max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <Badge className="mb-4 border-white/25 bg-white/15 text-white">Formulaire officiel</Badge>

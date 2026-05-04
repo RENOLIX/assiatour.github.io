@@ -25,7 +25,7 @@ export default function Index() {
       <Navbar />
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden pb-16">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1694963059334-032b961079a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920)" }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/75 via-blue-900/55 to-sky-900/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/45 via-blue-900/28 to-sky-900/48" />
         <div className="relative z-10 mx-auto max-w-5xl px-4 pt-32 text-center md:pt-48">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-5">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">

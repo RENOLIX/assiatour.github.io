@@ -11,7 +11,14 @@ export default function VoyagesPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-sky-700 px-4 pb-16 pt-36 text-white">
+      <section className="relative overflow-hidden px-4 pb-16 pt-36 text-white">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url(https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=90&w=1920)",
+          }}
+        />
         <div className="relative mx-auto max-w-3xl text-center">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <Badge className="mb-4 border-white/25 bg-white/15 text-white">Saison 2026</Badge>

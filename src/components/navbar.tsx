@@ -29,7 +29,7 @@ export default function Navbar() {
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
         scrolled
           ? "border-b border-blue-100/60 bg-white/85 shadow-lg shadow-blue-900/10 backdrop-blur-xl"
-          : "bg-transparent"
+          : "border-b border-transparent bg-transparent"
       }`}
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -37,7 +37,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
         <Link to="/" className="flex cursor-pointer items-center gap-2">
-          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-auto w-36 shrink-0 object-contain md:w-48" />
+          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-14 w-auto shrink-0 object-contain md:h-20" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
