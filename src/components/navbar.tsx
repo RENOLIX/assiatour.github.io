@@ -37,7 +37,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
         <Link to="/" className="flex cursor-pointer items-center gap-2">
-          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-12 w-auto object-contain md:h-14" />
+          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-20 w-auto object-contain md:h-24" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

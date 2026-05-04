@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-20 w-auto object-contain" />
+              <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-28 w-auto object-contain" />
             </div>
             <p className="text-sm leading-relaxed text-blue-200">
               Votre agence de voyage de confiance depuis Alger. Voyages organisés, hébergements premium et excursions guidées.
