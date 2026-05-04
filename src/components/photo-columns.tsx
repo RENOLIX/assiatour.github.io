@@ -25,16 +25,14 @@ function ScrollColumn({
   const singleSetPx = photos.length * ITEM_HEIGHT;
 
   useEffect(() => {
-    posRef.current = direction === "up" ? -singleSetPx : 0;
-  }, [direction, singleSetPx]);
-
-  useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
+    posRef.current = -singleSetPx;
+    el.style.transform = `translateY(${posRef.current}px)`;
     const animate = () => {
       if (direction === "down") {
         posRef.current += speed;
-        if (posRef.current >= singleSetPx) posRef.current = 0;
+        if (posRef.current >= 0) posRef.current = -singleSetPx;
       } else {
         posRef.current -= speed;
         if (posRef.current <= -singleSetPx * 2) posRef.current = -singleSetPx;
