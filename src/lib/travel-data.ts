@@ -194,3 +194,52 @@ export const CONTACT = {
   email: "assia.tours@outlook.com",
   facebook: "#Assia tours",
 };
+
+type DbTrip = {
+  slug: string;
+  destination?: string | null;
+  country?: string | null;
+  flag?: string | null;
+  tagline?: string | null;
+  description?: string | null;
+  hero_image?: string | null;
+  gallery_images?: string[] | null;
+  airline?: string | null;
+  duration?: string | null;
+  base_price?: number | null;
+  departures?: Departure[] | null;
+  hotels?: Hotel[] | null;
+  includes?: string[] | null;
+  excludes?: string[] | null;
+  excursions?: string[] | null;
+  optional_activities?: string[] | null;
+};
+
+export function tripFromDb(db: DbTrip): Trip {
+  const base = TRIPS.find((trip) => trip.slug === db.slug);
+  const gallery = db.gallery_images?.length ? db.gallery_images : base?.galleryImages;
+  return {
+    id: base?.id ?? db.slug,
+    slug: db.slug,
+    destination: db.destination || base?.destination || "",
+    country: db.country || base?.country || "",
+    flag: db.flag || base?.flag || "WORLD",
+    tagline: db.tagline || base?.tagline || "",
+    description: db.description || base?.description || "",
+    heroImage: db.hero_image || gallery?.[0] || base?.heroImage || "",
+    galleryImages: gallery || [],
+    airline: db.airline || base?.airline || "",
+    airlineLogo: base?.airlineLogo || "✈",
+    duration: db.duration || base?.duration || "",
+    basePrice: Number(db.base_price ?? base?.basePrice ?? 0),
+    currency: base?.currency || "DA",
+    departures: db.departures?.length ? db.departures : base?.departures || [],
+    hotels: db.hotels?.length ? db.hotels : base?.hotels || [],
+    includes: db.includes?.length ? db.includes : base?.includes || [],
+    excludes: db.excludes?.length ? db.excludes : base?.excludes || [],
+    excursions: db.excursions?.length ? db.excursions : base?.excursions || [],
+    optionalActivities: db.optional_activities?.length
+      ? db.optional_activities
+      : base?.optionalActivities || [],
+  };
+}

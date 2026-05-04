@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge.tsx";
 import ScrollReveal from "@/components/scroll-reveal.tsx";
 import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
-import { TRIPS, CONTACT } from "@/lib/travel-data.ts";
+import { CONTACT } from "@/lib/travel-data.ts";
+import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 
 function StarRating({ count }: { count: number }) {
   return <span className="flex items-center gap-0.5">{Array.from({ length: count }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}</span>;
@@ -15,7 +16,8 @@ function StarRating({ count }: { count: number }) {
 export default function TripPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const trip = TRIPS.find((t) => t.slug === slug);
+  const trips = usePublicTrips();
+  const trip = trips.find((t) => t.slug === slug);
   if (!trip) {
     return <div className="flex min-h-screen flex-col items-center justify-center"><p className="mb-4 text-xl text-muted-foreground">Voyage introuvable</p><Button onClick={() => navigate("/")}>Retour à l'accueil</Button></div>;
   }

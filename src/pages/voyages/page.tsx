@@ -3,10 +3,11 @@ import { Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge.tsx";
 import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
-import { TRIPS } from "@/lib/travel-data.ts";
 import { TripGrid } from "@/pages/Index.tsx";
+import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 
 export default function VoyagesPage() {
+  const trips = usePublicTrips();
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -21,10 +22,10 @@ export default function VoyagesPage() {
       </section>
       <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="mb-10 flex items-center justify-between">
-          <p className="text-muted-foreground"><span className="font-semibold text-blue-950">{TRIPS.length}</span> voyages disponibles</p>
+          <p className="text-muted-foreground"><span className="font-semibold text-blue-950">{trips.length}</span> voyages disponibles</p>
           <div className="flex items-center gap-2 text-sm text-muted-foreground"><Filter className="h-4 w-4" />Tous les voyages</div>
         </div>
-        <TripGrid />
+        <TripGrid trips={trips} />
       </section>
       <Footer />
     </div>

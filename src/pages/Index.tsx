@@ -8,7 +8,8 @@ import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
 import Marquee from "@/components/marquee.tsx";
 import PhotoColumns from "@/components/photo-columns.tsx";
-import { TRIPS, CONTACT } from "@/lib/travel-data.ts";
+import { CONTACT, type Trip } from "@/lib/travel-data.ts";
+import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 
 const whyUs = [
   { icon: Shield, title: "Agence Agréée", desc: "Agence de voyage officiellement agréée par les autorités algériennes." },
@@ -18,6 +19,7 @@ const whyUs = [
 ];
 
 export default function Index() {
+  const trips = usePublicTrips();
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
       <Navbar />
@@ -56,7 +58,7 @@ export default function Index() {
             <h2 className="mb-4 text-4xl font-bold text-blue-950 md:text-5xl">Voyages organisés</h2>
             <p className="mx-auto max-w-xl text-lg text-muted-foreground">Des packages tout compris soigneusement préparés pour des souvenirs inoubliables.</p>
           </ScrollReveal>
-          <TripGrid limit={3} />
+          <TripGrid limit={3} trips={trips} />
         </div>
       </section>
       <PhotoColumns />
@@ -108,10 +110,10 @@ export default function Index() {
   );
 }
 
-export function TripGrid({ limit }: { limit?: number }) {
+export function TripGrid({ limit, trips }: { limit?: number; trips: Trip[] }) {
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-      {TRIPS.slice(0, limit ?? TRIPS.length).map((trip, i) => (
+      {trips.slice(0, limit ?? trips.length).map((trip, i) => (
         <ScrollReveal key={trip.id} delay={i * 0.1}>
           <Link to={`/voyage/${trip.slug}`} className="group block">
             <div className="relative overflow-hidden rounded-3xl border border-blue-100/80 bg-white/80 shadow-xl shadow-blue-900/8 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">

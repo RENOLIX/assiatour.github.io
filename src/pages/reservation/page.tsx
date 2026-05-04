@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import ScrollReveal from "@/components/scroll-reveal.tsx";
 import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
-import { TRIPS } from "@/lib/travel-data.ts";
+import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 import { supabase } from "@/lib/supabase.ts";
 
 const schema = z.object({
@@ -41,15 +41,16 @@ const roomTypes = ["Chambre Double", "Chambre Triple", "Supplément Single"];
 
 export default function ReservationPage() {
   const [done, setDone] = useState(false);
+  const trips = usePublicTrips();
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { passengerCount: 1, nationality: "Algérienne", tripSlug: "", departureFrom: "", hotelName: "", roomType: "" },
   });
-  const selectedTrip = TRIPS.find((t) => t.slug === watch("tripSlug"));
+  const selectedTrip = trips.find((t) => t.slug === watch("tripSlug"));
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const trip = TRIPS.find((t) => t.slug === data.tripSlug);
+      const trip = trips.find((t) => t.slug === data.tripSlug);
       if (!trip) return;
       const dep = trip.departures.find((d) => d.from === data.departureFrom);
       const { error } = await supabase.from("reservations").insert({
@@ -117,7 +118,7 @@ export default function ReservationPage() {
               <Field label="Destination *" error={errors.tripSlug?.message} wide>
                 <Select onValueChange={(v) => { setValue("tripSlug", v, { shouldValidate: true }); setValue("departureFrom", ""); setValue("hotelName", ""); }}>
                   <SelectTrigger className={errors.tripSlug ? "border-red-400" : ""}><SelectValue placeholder="Choisissez un voyage" /></SelectTrigger>
-                  <SelectContent>{TRIPS.map((t) => <SelectItem key={t.slug} value={t.slug}>{t.flag} {t.tagline}</SelectItem>)}</SelectContent>
+                  <SelectContent>{trips.map((t) => <SelectItem key={t.slug} value={t.slug}>{t.flag} {t.tagline}</SelectItem>)}</SelectContent>
                 </Select>
               </Field>
               <Field label="Date de départ *" error={errors.departureFrom?.message}>

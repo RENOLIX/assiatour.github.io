@@ -38,9 +38,17 @@ export type AdminTrip = {
   tagline: string;
   description: string;
   hero_image: string;
+  gallery_images: string[] | null;
   airline: string;
   duration: string;
   base_price: number;
+  departures: Array<{ id: string; from: string; to: string }> | null;
+  hotels: Array<{
+    name: string;
+    stars: number;
+    image: string;
+    prices: Record<string, number | undefined>;
+  }> | null;
   includes: string[];
   excludes: string[];
   excursions: string[];

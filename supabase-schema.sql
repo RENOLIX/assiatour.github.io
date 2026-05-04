@@ -30,9 +30,12 @@ create table if not exists public.trips (
   tagline text not null,
   description text not null default '',
   hero_image text not null default '',
+  gallery_images text[] not null default '{}',
   airline text not null default '',
   duration text not null default '',
   base_price numeric(12,2) not null default 0 check (base_price >= 0),
+  departures jsonb not null default '[]'::jsonb,
+  hotels jsonb not null default '[]'::jsonb,
   includes text[] not null default '{}',
   excludes text[] not null default '{}',
   excursions text[] not null default '{}',
@@ -69,6 +72,14 @@ create table if not exists public.reservations (
 create index if not exists reservations_status_idx on public.reservations(status);
 create index if not exists reservations_created_at_idx on public.reservations(created_at desc);
 create index if not exists trips_active_idx on public.trips(active);
+
+alter table public.trips add column if not exists gallery_images text[] not null default '{}';
+alter table public.trips add column if not exists departures jsonb not null default '[]'::jsonb;
+alter table public.trips add column if not exists hotels jsonb not null default '[]'::jsonb;
+
+insert into storage.buckets (id, name, public)
+values ('trip-images', 'trip-images', true)
+on conflict (id) do update set public = true;
 
 create or replace function public.touch_updated_at()
 returns trigger
@@ -181,6 +192,25 @@ create policy "reservations_admin_delete"
 on public.reservations for delete
 to authenticated
 using (public.current_user_role() = 'admin');
+
+drop policy if exists "trip_images_public_read" on storage.objects;
+create policy "trip_images_public_read"
+on storage.objects for select
+to anon, authenticated
+using (bucket_id = 'trip-images');
+
+drop policy if exists "trip_images_staff_upload" on storage.objects;
+create policy "trip_images_staff_upload"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'));
+
+drop policy if exists "trip_images_staff_update" on storage.objects;
+create policy "trip_images_staff_update"
+on storage.objects for update
+to authenticated
+using (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'))
+with check (bucket_id = 'trip-images' and public.current_user_role() in ('admin', 'employee'));
 
 insert into public.trips
   (slug, destination, country, flag, tagline, description, hero_image, airline, duration, base_price, includes, excludes, excursions, optional_activities)
