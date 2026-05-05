@@ -32,7 +32,9 @@ const schema = z.object({
   passportExpiry: z.string().min(1, "Date d'expiration requise"),
   nationality: z.string().min(2, "Nationalité requise"),
   birthDate: z.string().min(1, "Date de naissance requise"),
-  passengerCount: z.coerce.number().min(1).max(20),
+  adultCount: z.coerce.number().min(1, "Au moins 1 adulte").max(20),
+  childCount: z.coerce.number().min(0).max(20),
+  infantCount: z.coerce.number().min(0).max(20),
   notes: z.string().optional(),
 });
 
@@ -44,23 +46,28 @@ export default function ReservationPage() {
   const trips = usePublicTrips();
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { passengerCount: 1, nationality: "Algérienne", tripSlug: "", departureFrom: "", hotelName: "", roomType: "" },
+    defaultValues: { adultCount: 1, childCount: 0, infantCount: 0, nationality: "Algérienne", tripSlug: "", departureFrom: "", hotelName: "", roomType: "" },
   });
   const selectedTrip = trips.find((t) => t.slug === watch("tripSlug"));
+  const passengerTotal = Number(watch("adultCount") || 0) + Number(watch("childCount") || 0) + Number(watch("infantCount") || 0);
 
   const onSubmit = async (data: FormValues) => {
     try {
       const trip = trips.find((t) => t.slug === data.tripSlug);
       if (!trip) return;
       const dep = trip.departures.find((d) => d.from === data.departureFrom);
-      const { error } = await supabase.from("reservations").insert({
+      const passengerSummary = `Passagers: ADT ${data.adultCount} / CHD ${data.childCount} / INF ${data.infantCount}`;
+      const payload = {
         trip_slug: data.tripSlug,
         trip_name: trip.tagline,
         departure_from: data.departureFrom,
         departure_to: dep?.to ?? "",
         hotel_name: data.hotelName,
         room_type: data.roomType,
-        passenger_count: data.passengerCount,
+        passenger_count: passengerTotal,
+        adult_count: data.adultCount,
+        child_count: data.childCount,
+        infant_count: data.infantCount,
         first_name: data.firstName,
         last_name: data.lastName,
         email: data.email,
@@ -71,9 +78,18 @@ export default function ReservationPage() {
         passport_expiry: data.passportExpiry,
         nationality: data.nationality,
         birth_date: data.birthDate,
-        notes: data.notes ?? "",
+        notes: [passengerSummary, data.notes].filter(Boolean).join("\n"),
         status: "pending",
-      });
+      };
+      let { error } = await supabase.from("reservations").insert(payload);
+      if (error && /adult_count|child_count|infant_count|schema cache/i.test(error.message)) {
+        const fallbackPayload = { ...payload };
+        delete (fallbackPayload as Partial<typeof payload>).adult_count;
+        delete (fallbackPayload as Partial<typeof payload>).child_count;
+        delete (fallbackPayload as Partial<typeof payload>).infant_count;
+        const retry = await supabase.from("reservations").insert(fallbackPayload);
+        error = retry.error;
+      }
       if (error) throw error;
       setDone(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -178,7 +194,23 @@ export default function ReservationPage() {
                 </Select>
               </Field>
               <Field label="Type de chambre *" error={errors.roomType?.message}><Select onValueChange={(v) => setValue("roomType", v, { shouldValidate: true })}><SelectTrigger className={errors.roomType ? "border-red-400" : ""}><SelectValue placeholder="Choisissez" /></SelectTrigger><SelectContent>{roomTypes.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select></Field>
-              <Field label="Nombre de passagers *" error={errors.passengerCount?.message as string}><Input type="number" min={1} max={20} {...register("passengerCount")} /></Field>
+              <div className="space-y-3 md:col-span-2">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="font-medium text-blue-950">Nombre de passagers *</Label>
+                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">Total: {passengerTotal}</span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <Field label="Adulte ADT *" error={errors.adultCount?.message as string}>
+                    <Input type="number" min={1} max={20} {...register("adultCount")} />
+                  </Field>
+                  <Field label="Enfant CHD" error={errors.childCount?.message as string}>
+                    <Input type="number" min={0} max={20} {...register("childCount")} />
+                  </Field>
+                  <Field label="Bébé INF" error={errors.infantCount?.message as string}>
+                    <Input type="number" min={0} max={20} {...register("infantCount")} />
+                  </Field>
+                </div>
+              </div>
             </div>
           </Panel>
           <Panel icon={User} title="Informations personnelles"><InputGrid fields={[["firstName", "Prénom *", "Mohamed"], ["lastName", "Nom *", "Benali"], ["birthDate", "Date de naissance *", "", "date"], ["nationality", "Nationalité *", "Algérienne"]]} register={register} errors={errors} /></Panel>

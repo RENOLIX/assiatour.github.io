@@ -66,6 +66,9 @@ export type Reservation = {
   hotel_name: string;
   room_type: string;
   passenger_count: number;
+  adult_count?: number | null;
+  child_count?: number | null;
+  infant_count?: number | null;
   first_name: string;
   last_name: string;
   email: string;
