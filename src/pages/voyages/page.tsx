@@ -15,7 +15,7 @@ export default function VoyagesPage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url(/assiatour.github.io/voyages-pool-hero.webp)",
+            backgroundImage: "url(/voyages-pool-hero.webp)",
           }}
         />
         <div className="relative mx-auto max-w-3xl text-center [text-shadow:0_2px_18px_rgba(255,255,255,0.95),0_1px_3px_rgba(255,255,255,0.85)]">

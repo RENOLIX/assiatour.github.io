@@ -32,7 +32,7 @@ function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
     <aside className="flex min-h-screen w-64 shrink-0 flex-col bg-gradient-to-b from-blue-950 to-blue-900 text-white">
       <div className="border-b border-blue-800/60 p-6">
         <div className="flex items-center gap-2">
-          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-auto w-44 object-contain" />
+          <img src="/assia-logo.png" alt="Assia Tours" className="h-auto w-44 object-contain" />
         </div>
       </div>
       <nav className="flex-1 space-y-1 p-4">
@@ -94,7 +94,7 @@ export default function AdminLayout() {
       </div>
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-blue-100 bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center gap-2">
-          <img src="/assiatour.github.io/assia-logo.png" alt="Assia Tours" className="h-auto w-40 object-contain" />
+          <img src="/assia-logo.png" alt="Assia Tours" className="h-auto w-40 object-contain" />
         </div>
         <button onClick={() => setMenuOpen(true)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/25" aria-label="Ouvrir le menu">
           <Menu className="h-5 w-5" />
