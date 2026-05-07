@@ -146,6 +146,30 @@ export default function AdminReservations() {
                   </div>
                 ))}
               </div>
+              <div className="rounded-xl border border-blue-100 bg-white p-4">
+                <div className="mb-3 text-sm font-bold text-blue-950">Fiches passagers</div>
+                <div className="space-y-3">
+                  {(selected.passengers?.length
+                    ? selected.passengers
+                    : [{
+                        type: "ADT",
+                        firstName: selected.first_name,
+                        lastName: selected.last_name,
+                        birthDate: selected.birth_date,
+                        nationality: selected.nationality,
+                        passportNumber: selected.passport_number,
+                        passportExpiry: selected.passport_expiry,
+                      }]
+                  ).map((passenger, index) => (
+                    <div key={index} className="rounded-lg bg-blue-50 p-3 text-sm">
+                      <div className="font-semibold text-blue-950">Passager {index + 1} - {passenger.type}</div>
+                      <div className="mt-1 text-muted-foreground">{passenger.firstName} {passenger.lastName}</div>
+                      <div className="text-muted-foreground">Naissance: {passenger.birthDate} · Nationalité: {passenger.nationality}</div>
+                      <div className="text-muted-foreground">Passeport: {passenger.passportNumber} · Expiration: {passenger.passportExpiry}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
               {selected.notes && <div className="rounded-xl border border-amber-100 bg-amber-50 p-4"><div className="mb-1 text-xs font-semibold text-amber-700">Remarques</div><p className="text-sm text-amber-900">{selected.notes}</p></div>}
             </div>
           </DialogContent>

@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plane, User, Phone, Mail, MapPin, CreditCard, Calendar, Users, MessageSquare, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
 import { Input } from "@/components/ui/input.tsx";
@@ -16,6 +16,16 @@ import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
 import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 import { supabase } from "@/lib/supabase.ts";
+
+const passengerSchema = z.object({
+  type: z.enum(["ADT", "CHD", "INF"]),
+  firstName: z.string().min(2, "Prénom requis"),
+  lastName: z.string().min(2, "Nom requis"),
+  birthDate: z.string().min(1, "Date de naissance requise"),
+  nationality: z.string().min(2, "Nationalité requise"),
+  passportNumber: z.string().min(5, "Numéro de passeport requis"),
+  passportExpiry: z.string().min(1, "Date d'expiration requise"),
+});
 
 const schema = z.object({
   tripSlug: z.string().min(1, "Choisissez un voyage"),
@@ -35,21 +45,63 @@ const schema = z.object({
   adultCount: z.coerce.number().min(1, "Au moins 1 adulte").max(20),
   childCount: z.coerce.number().min(0).max(20),
   infantCount: z.coerce.number().min(0).max(20),
+  additionalPassengers: z.array(passengerSchema).optional(),
   notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
+type PassengerType = "ADT" | "CHD" | "INF";
 const roomTypes = ["Chambre Double", "Chambre Triple", "Supplément Single"];
+
+const passengerTypeLabels: Record<PassengerType, string> = {
+  ADT: "Adulte",
+  CHD: "Enfant",
+  INF: "Bébé",
+};
+
+function buildPassengerTypes(adults: number, children: number, infants: number) {
+  return [
+    ...Array.from({ length: Math.max(0, adults) }, () => "ADT" as const),
+    ...Array.from({ length: Math.max(0, children) }, () => "CHD" as const),
+    ...Array.from({ length: Math.max(0, infants) }, () => "INF" as const),
+  ];
+}
+
+function emptyPassenger(type: PassengerType): NonNullable<FormValues["additionalPassengers"]>[number] {
+  return {
+    type,
+    firstName: "",
+    lastName: "",
+    birthDate: "",
+    nationality: "Algérienne",
+    passportNumber: "",
+    passportExpiry: "",
+  };
+}
 
 export default function ReservationPage() {
   const [done, setDone] = useState(false);
   const trips = usePublicTrips();
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { adultCount: 1, childCount: 0, infantCount: 0, nationality: "Algérienne", tripSlug: "", departureFrom: "", hotelName: "", roomType: "" },
+    defaultValues: { adultCount: 1, childCount: 0, infantCount: 0, additionalPassengers: [], nationality: "Algérienne", tripSlug: "", departureFrom: "", hotelName: "", roomType: "" },
   });
   const selectedTrip = trips.find((t) => t.slug === watch("tripSlug"));
-  const passengerTotal = Number(watch("adultCount") || 0) + Number(watch("childCount") || 0) + Number(watch("infantCount") || 0);
+  const adultCount = Number(watch("adultCount") || 0);
+  const childCount = Number(watch("childCount") || 0);
+  const infantCount = Number(watch("infantCount") || 0);
+  const passengerTotal = adultCount + childCount + infantCount;
+  const additionalPassengers = watch("additionalPassengers") ?? [];
+  const additionalTypes = buildPassengerTypes(adultCount, childCount, infantCount).slice(1);
+
+  useEffect(() => {
+    const current = watch("additionalPassengers") ?? [];
+    const next = additionalTypes.map((type, index) => {
+      const existing = current[index];
+      return existing ? { ...existing, type } : emptyPassenger(type);
+    });
+    setValue("additionalPassengers", next, { shouldValidate: false });
+  }, [adultCount, childCount, infantCount, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -57,6 +109,18 @@ export default function ReservationPage() {
       if (!trip) return;
       const dep = trip.departures.find((d) => d.from === data.departureFrom);
       const passengerSummary = `Passagers: ADT ${data.adultCount} / CHD ${data.childCount} / INF ${data.infantCount}`;
+      const passengers = [
+        {
+          type: "ADT",
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate,
+          nationality: data.nationality,
+          passportNumber: data.passportNumber,
+          passportExpiry: data.passportExpiry,
+        },
+        ...(data.additionalPassengers ?? []),
+      ];
       const payload = {
         trip_slug: data.tripSlug,
         trip_name: trip.tagline,
@@ -68,6 +132,7 @@ export default function ReservationPage() {
         adult_count: data.adultCount,
         child_count: data.childCount,
         infant_count: data.infantCount,
+        passengers,
         first_name: data.firstName,
         last_name: data.lastName,
         email: data.email,
@@ -82,11 +147,12 @@ export default function ReservationPage() {
         status: "pending",
       };
       let { error } = await supabase.from("reservations").insert(payload);
-      if (error && /adult_count|child_count|infant_count|schema cache/i.test(error.message)) {
+      if (error && /adult_count|child_count|infant_count|passengers|schema cache/i.test(error.message)) {
         const fallbackPayload = { ...payload };
         delete (fallbackPayload as Partial<typeof payload>).adult_count;
         delete (fallbackPayload as Partial<typeof payload>).child_count;
         delete (fallbackPayload as Partial<typeof payload>).infant_count;
+        delete (fallbackPayload as Partial<typeof payload>).passengers;
         const retry = await supabase.from("reservations").insert(fallbackPayload);
         error = retry.error;
       }
@@ -213,8 +279,27 @@ export default function ReservationPage() {
               </div>
             </div>
           </Panel>
-          <Panel icon={User} title="Informations personnelles"><InputGrid fields={[["firstName", "Prénom *", "Mohamed"], ["lastName", "Nom *", "Benali"], ["birthDate", "Date de naissance *", "", "date"], ["nationality", "Nationalité *", "Algérienne"]]} register={register} errors={errors} /></Panel>
-          <Panel icon={CreditCard} title="Passeport"><InputGrid fields={[["passportNumber", "Numéro de passeport *", "AB1234567"], ["passportExpiry", "Date d'expiration *", "", "date"]]} register={register} errors={errors} /></Panel>
+          <Panel icon={User} title="Passager 1 - Adulte ADT"><InputGrid fields={[["firstName", "Prénom *", "Mohamed"], ["lastName", "Nom *", "Benali"], ["birthDate", "Date de naissance *", "", "date"], ["nationality", "Nationalité *", "Algérienne"]]} register={register} errors={errors} /></Panel>
+          <Panel icon={CreditCard} title="Passeport du passager 1"><InputGrid fields={[["passportNumber", "Numéro de passeport *", "AB1234567"], ["passportExpiry", "Date d'expiration *", "", "date"]]} register={register} errors={errors} /></Panel>
+          {additionalPassengers.length > 0 && (
+            <Panel icon={Users} title="Fiches des autres passagers">
+              <div className="space-y-5">
+                {additionalPassengers.map((passenger, index) => (
+                  <div key={index} className="rounded-2xl border border-blue-100 bg-blue-50/45 p-4">
+                    <h3 className="mb-4 font-bold text-blue-950">Passager {index + 2} - {passengerTypeLabels[passenger.type as PassengerType]} {passenger.type}</h3>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <Field label="Prénom *"><Input placeholder="Prénom" {...register(`additionalPassengers.${index}.firstName` as const)} /></Field>
+                      <Field label="Nom *"><Input placeholder="Nom" {...register(`additionalPassengers.${index}.lastName` as const)} /></Field>
+                      <Field label="Date de naissance *"><Input type="date" {...register(`additionalPassengers.${index}.birthDate` as const)} /></Field>
+                      <Field label="Nationalité *"><Input placeholder="Algérienne" {...register(`additionalPassengers.${index}.nationality` as const)} /></Field>
+                      <Field label="Numéro de passeport *"><Input placeholder="AB1234567" {...register(`additionalPassengers.${index}.passportNumber` as const)} /></Field>
+                      <Field label="Expiration passeport *"><Input type="date" {...register(`additionalPassengers.${index}.passportExpiry` as const)} /></Field>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          )}
           <Panel icon={Mail} title="Coordonnées"><InputGrid fields={[["email", "Email *", "email@exemple.com", "email"], ["phone", "Téléphone *", "0555 00 00 00", "tel"], ["address", "Adresse *", "Rue de la Paix, N°12"], ["city", "Ville *", "Alger"]]} register={register} errors={errors} /></Panel>
           <Panel icon={MessageSquare} title="Remarques / Demandes spéciales"><Textarea placeholder="Ex : chambre non-fumeur, étage élevé, repas végétarien..." rows={4} {...register("notes")} className="resize-none" /></Panel>
           <ScrollReveal><div className="flex flex-col items-center gap-3"><Button type="submit" disabled={isSubmitting} size="lg" className="border-0 bg-gradient-to-r from-blue-600 to-sky-500 px-12 text-base font-semibold text-white shadow-xl shadow-blue-500/30">{isSubmitting ? "Envoi en cours..." : <><CheckCircle2 className="mr-2 h-5 w-5" />Envoyer ma réservation</>}</Button><p className="max-w-sm text-center text-xs text-muted-foreground">En soumettant ce formulaire, vous acceptez d'être contacté par notre équipe.</p></div></ScrollReveal>

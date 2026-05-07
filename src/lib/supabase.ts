@@ -69,6 +69,15 @@ export type Reservation = {
   adult_count?: number | null;
   child_count?: number | null;
   infant_count?: number | null;
+  passengers?: Array<{
+    type: "ADT" | "CHD" | "INF";
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    nationality: string;
+    passportNumber: string;
+    passportExpiry: string;
+  }> | null;
   first_name: string;
   last_name: string;
   email: string;
