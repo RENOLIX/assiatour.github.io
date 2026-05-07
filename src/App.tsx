@@ -16,6 +16,7 @@ import AdminUtilisateurs from "./pages/admin/utilisateurs.tsx";
 import AdminReservations from "./pages/admin/reservations.tsx";
 import AdminBlocGallerie from "./pages/admin/bloc-gallerie.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { getRouterBaseName } from "./lib/site-paths.ts";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -30,7 +31,7 @@ function ScrollToTop() {
 export default function App() {
   return (
     <DefaultProviders>
-      <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <BrowserRouter basename={getRouterBaseName()}>
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />

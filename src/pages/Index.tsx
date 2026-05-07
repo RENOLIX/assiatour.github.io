@@ -10,6 +10,7 @@ import Marquee from "@/components/marquee.tsx";
 import PhotoColumns from "@/components/photo-columns.tsx";
 import { CONTACT, type Trip } from "@/lib/travel-data.ts";
 import { usePublicTrips } from "@/hooks/use-public-trips.ts";
+import { assetPath } from "@/lib/site-paths.ts";
 
 const whyUs = [
   { icon: Shield, title: "Agence Agréée", desc: "Agence de voyage officiellement agréée par les autorités algériennes." },
@@ -24,7 +25,7 @@ export default function Index() {
     <div className="min-h-screen overflow-x-hidden bg-background">
       <Navbar />
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden pb-16">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(/home-underwater-landscape.jpg)" }} />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${assetPath("home-underwater-landscape.jpg")})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/25 via-blue-900/12 to-sky-900/28" />
         <div className="relative z-10 mx-auto max-w-5xl px-4 pt-32 text-center md:pt-48">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-5">

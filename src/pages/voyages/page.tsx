@@ -5,6 +5,7 @@ import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
 import { TripGrid } from "@/pages/Index.tsx";
 import { usePublicTrips } from "@/hooks/use-public-trips.ts";
+import { assetPath } from "@/lib/site-paths.ts";
 
 export default function VoyagesPage() {
   const trips = usePublicTrips();
@@ -15,7 +16,7 @@ export default function VoyagesPage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url(/voyages-pool-hero.webp)",
+            backgroundImage: `url(${assetPath("voyages-pool-hero.webp")})`,
           }}
         />
         <div className="relative mx-auto max-w-3xl text-center [text-shadow:0_2px_18px_rgba(255,255,255,0.95),0_1px_3px_rgba(255,255,255,0.85)]">

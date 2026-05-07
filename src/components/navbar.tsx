@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button.tsx";
+import { assetPath } from "@/lib/site-paths.ts";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -37,7 +38,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8">
         <Link to="/" className="flex cursor-pointer items-center gap-2">
-          <img src="/assia-logo.png" alt="Assia Tours" className="-my-2 h-20 w-auto shrink-0 object-contain md:h-24" />
+          <img src={assetPath("assia-logo.png")} alt="Assia Tours" className="-my-2 h-20 w-auto shrink-0 object-contain md:h-24" />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
