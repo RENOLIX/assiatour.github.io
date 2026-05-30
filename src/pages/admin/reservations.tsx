@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.tsx";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth.ts";
+import { getReservationPassengers, getVisibleReservationNotes } from "@/lib/reservation-passengers.ts";
 
 const statusConfig: Record<ReservationStatus, { label: string; color: string; icon: typeof Clock }> = {
   pending: { label: "En attente", color: "bg-amber-100 text-amber-700", icon: Clock },
@@ -17,6 +18,8 @@ export default function AdminReservations() {
   const [reservations, setReservations] = useState<Reservation[] | null>(null);
   const [selected, setSelected] = useState<Reservation | null>(null);
   const canDelete = profile?.role === "admin";
+  const selectedPassengers = selected ? getReservationPassengers(selected) : [];
+  const selectedNotes = selected ? getVisibleReservationNotes(selected.notes) : "";
 
   const load = () =>
     supabase
@@ -149,18 +152,7 @@ export default function AdminReservations() {
               <div className="rounded-xl border border-blue-100 bg-white p-4">
                 <div className="mb-3 text-sm font-bold text-blue-950">Fiches passagers</div>
                 <div className="space-y-3">
-                  {(selected.passengers?.length
-                    ? selected.passengers
-                    : [{
-                        type: "ADT",
-                        firstName: selected.first_name,
-                        lastName: selected.last_name,
-                        birthDate: selected.birth_date,
-                        nationality: selected.nationality,
-                        passportNumber: selected.passport_number,
-                        passportExpiry: selected.passport_expiry,
-                      }]
-                  ).map((passenger, index) => (
+                  {selectedPassengers.map((passenger, index) => (
                     <div key={index} className="rounded-lg bg-blue-50 p-3 text-sm">
                       <div className="font-semibold text-blue-950">Passager {index + 1} - {passenger.type}</div>
                       <div className="mt-1 text-muted-foreground">{passenger.firstName} {passenger.lastName}</div>
@@ -170,7 +162,7 @@ export default function AdminReservations() {
                   ))}
                 </div>
               </div>
-              {selected.notes && <div className="rounded-xl border border-amber-100 bg-amber-50 p-4"><div className="mb-1 text-xs font-semibold text-amber-700">Remarques</div><p className="text-sm text-amber-900">{selected.notes}</p></div>}
+              {selectedNotes && <div className="rounded-xl border border-amber-100 bg-amber-50 p-4"><div className="mb-1 text-xs font-semibold text-amber-700">Remarques</div><p className="whitespace-pre-wrap text-sm text-amber-900">{selectedNotes}</p></div>}
             </div>
           </DialogContent>
         </Dialog>

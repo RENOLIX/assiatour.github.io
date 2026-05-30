@@ -16,6 +16,7 @@ import Navbar from "@/components/navbar.tsx";
 import Footer from "@/components/footer.tsx";
 import { usePublicTrips } from "@/hooks/use-public-trips.ts";
 import { supabase } from "@/lib/supabase.ts";
+import { buildReservationNotes } from "@/lib/reservation-passengers.ts";
 
 const passengerSchema = z.object({
   type: z.enum(["ADT", "CHD", "INF"]),
@@ -111,7 +112,7 @@ export default function ReservationPage() {
       const passengerSummary = `Passagers: ADT ${data.adultCount} / CHD ${data.childCount} / INF ${data.infantCount}`;
       const passengers = [
         {
-          type: "ADT",
+          type: "ADT" as const,
           firstName: data.firstName,
           lastName: data.lastName,
           birthDate: data.birthDate,
@@ -143,7 +144,7 @@ export default function ReservationPage() {
         passport_expiry: data.passportExpiry,
         nationality: data.nationality,
         birth_date: data.birthDate,
-        notes: [passengerSummary, data.notes].filter(Boolean).join("\n"),
+        notes: buildReservationNotes(passengerSummary, data.notes, passengers),
         status: "pending",
       };
       let { error } = await supabase.from("reservations").insert(payload);
