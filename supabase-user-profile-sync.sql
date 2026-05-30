@@ -1,6 +1,16 @@
 -- Synchronise auth.users vers public.profiles.
 -- A executer une fois dans Supabase SQL Editor.
 
+do $$ begin
+  create type public.app_role as enum ('admin', 'employee');
+exception when duplicate_object then null; end $$;
+
+alter table public.profiles
+  add column if not exists email text,
+  add column if not exists name text,
+  add column if not exists role public.app_role not null default 'employee',
+  add column if not exists created_at timestamptz not null default now();
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
