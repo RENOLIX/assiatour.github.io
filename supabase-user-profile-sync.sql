@@ -11,6 +11,21 @@ alter table public.profiles
   add column if not exists role public.app_role not null default 'employee',
   add column if not exists created_at timestamptz not null default now();
 
+do $$
+begin
+  if exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'profiles'
+      and column_name = 'full_name'
+  ) then
+    execute 'update public.profiles set name = coalesce(name, full_name)';
+    execute 'alter table public.profiles alter column full_name drop not null';
+  end if;
+end;
+$$;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
