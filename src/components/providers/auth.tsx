@@ -36,11 +36,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(null);
         return;
       }
-      const { data } = await supabase
+      let { data } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", session.user.id)
         .maybeSingle();
+      if (!data) {
+        await supabase.rpc("ensure_current_user_profile");
+        const result = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .maybeSingle();
+        data = result.data;
+      }
       setProfile((data as Profile | null) ?? null);
     };
     loadProfile();

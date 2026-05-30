@@ -176,6 +176,31 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
 
+create or replace function public.ensure_current_user_profile()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, name, role)
+  select
+    users.id,
+    users.email,
+    coalesce(users.raw_user_meta_data->>'name', users.raw_user_meta_data->>'full_name', split_part(coalesce(users.email, ''), '@', 1)),
+    case
+      when users.raw_user_meta_data->>'role' = 'admin' then 'admin'::public.app_role
+      else 'employee'::public.app_role
+    end
+  from auth.users as users
+  where users.id = auth.uid()
+  on conflict (id) do nothing;
+end;
+$$;
+
+revoke all on function public.ensure_current_user_profile() from public;
+grant execute on function public.ensure_current_user_profile() to authenticated;
+
 alter table public.profiles enable row level security;
 alter table public.trips enable row level security;
 alter table public.reservations enable row level security;
